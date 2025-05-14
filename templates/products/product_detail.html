@@ -68,6 +68,45 @@
 
       <button type="submit" class="btn btn-success">Добавить в корзину</button>
     </form>
+    <hr>
+    <h4>Отзывы</h4>
+    {% for review in object.reviews.all %}
+      {% if review.approved %}
+        <div class="mb-2">
+          <strong>{{ review.author.username }}</strong>
+          {% for i in "12345"|slice:":review.rating" %}★{% endfor %}
+          {% for i in "12345"|slice:"review.rating:" %}☆{% endfor %}
+          <p>{{ review.text }}</p>
+        </div>
+      {% endif %}
+    {% empty %}
+      <p>Пока нет отзывов.</p>
+    {% endfor %}
+
+    {% if user.is_authenticated %}
+      <a href="{% url 'review_add' object.pk %}" class="btn btn-outline-primary">Оставить отзыв</a>
+    {% endif %}
+    <hr>
+    <h5>Продавец товара</h5>
+    {% if seller.logo %}
+        <img src="{{ seller.logo.url }}"
+             alt="{{ seller.company_name }}"
+             class="rounded-circle"
+             style="width:60px; height:60px; object-fit:cover; margin-right:1rem;">
+      {% else %}
+        <div class="rounded-circle bg-secondary"
+             style="width:60px; height:60px; margin-right:1rem;"></div>
+      {% endif %}
+      <div>
+        <h5 class="mb-0">{{ seller.company_name }}</h5>
+        {% if seller.description %}
+          <small class="text-muted">{{ seller.description|truncatechars:50 }}</small>
+        {% endif %}
+      </div>
+  </div>
+  <hr>
+  <div class="d-flex align-items-center mb-4">
+
   </div>
 </div>
 </div>

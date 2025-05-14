@@ -7,7 +7,7 @@ from django_filters.views import FilterView
 from .filters import ProductFilter
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
-from django.http  import JsonResponse
+from django.http import JsonResponse
 
 
 class WishlistView(LoginRequiredMixin, ListView):
