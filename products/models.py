@@ -50,3 +50,15 @@ class ProductVariant(models.Model):
     def __str__(self):
         # возвращает: "<название товара> — <цвет> / <размер>"
         return f'{self.product.title} — {self.color} / {self.size}'
+
+class ProductImage(models.Model):
+    product = models.ForeignKey(
+        Product,
+        on_delete=models.CASCADE,
+        related_name='images'
+    )
+    image   = models.ImageField(upload_to='products/main_images/')
+    order   = models.PositiveSmallIntegerField(default=0)
+
+    class Meta:
+        ordering = ['order']

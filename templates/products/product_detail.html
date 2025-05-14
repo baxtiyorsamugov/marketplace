@@ -1,76 +1,66 @@
 {# templates/products/product_detail.html #}
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}{{ object.title }}{% endblock %}
 
 {% block content %}
-<div class="row gy-4">
-  <div class="col-md-6 text-center">
-    {# Главное изображение #}
-    <img
-      id="main-image"
-      src="{% if variants.0.image %}{{ variants.0.image.url }}{% else %}{% static 'img/placeholder.png' %}{% endif %}"
-      alt="{{ object.title }}"
-      class="img-fluid rounded shadow-sm"
+<div class="row">
+  <div class="col-md-6">
+    {% with imgs=object.images.all %}
+    <div class="product-gallery position-relative"
+         data-images='[
+           {% for img in imgs %}
+             "{{ img.image.url }}"{% if not forloop.last %}, {% endif %}
+           {% endfor %}
+         ]'
+         style="overflow:hidden;"
     >
+      {% if imgs %}
+        <img src="{{ imgs.0.image.url }}"
+             class="product-main-image img-fluid"
+             alt="{{ object.title }}">
+      {% else %}
+        <img src="{% static 'img/placeholder.png' %}"
+             class="product-main-image img-fluid"
+             alt="Нет изображения">
+      {% endif %}
+    </div>
+    {% endwith %}
   </div>
 
   <div class="col-md-6">
-    <h2>{{ object.title }}</h2>
-    <p class="text-muted">{{ object.description }}</p>
-
-    <form method="post" action="{% url 'cart_add' %}">
-      {% csrf_token %}
-      <div class="mb-3">
-        <label for="variant-select" class="form-label">Вариант товара</label>
-        <select
-          name="variant"
-          id="variant-select"
-          class="form-select"
-          required
-        >
-          {% for v in variants %}
-            <option
-              value="{{ v.pk }}"
-              data-image-url="{% if v.image %}{{ v.image.url }}{% else %}{% static 'img/placeholder.png' %}{% endif %}"
-            >
-              {{ v.color }} / {{ v.size }} — {{ v.price }} сум (осталось {{ v.stock }})
-            </option>
-          {% endfor %}
-        </select>
-      </div>
-
-      <div class="mb-3">
-        <label for="qty-input" class="form-label">Количество</label>
-        <input
-          type="number"
-          id="qty-input"
-          name="quantity"
-          class="form-control"
-          value="1"
-          min="1"
-          max="{{ variants.0.stock }}"
-          required
-        >
-      </div>
-
-      <button type="submit" class="btn btn-success">Добавить в корзину</button>
-    </form>
+    <h1>{{ object.title }}</h1>
+    <p>{{ object.description }}</p>
+    {# … вариант выбрать, добавить в корзину и т.д. … #}
   </div>
 </div>
+{% endblock content %}
 
-{# JavaScript для переключения картинки #}
+{% block extra_scripts %}
 <script>
-document.addEventListener('DOMContentLoaded', function(){
-  const select = document.getElementById('variant-select');
-  const mainImg = document.getElementById('main-image');
-
-  select.addEventListener('change', function(){
-    const url = this.selectedOptions[0].dataset.imageUrl;
-    if (url) {
-      mainImg.src = url;
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.product-gallery').forEach(wrapper => {
+    const imgEl = wrapper.querySelector('img.product-main-image');
+    let images;
+    try {
+      images = JSON.parse(wrapper.dataset.images);
+    } catch {
+      return;
     }
+    const n = images.length;
+    if (n <= 1) return;
+
+    wrapper.addEventListener('mousemove', e => {
+      const { left, width } = wrapper.getBoundingClientRect();
+      let x = e.clientX - left;
+      x = Math.max(0, Math.min(x, width));
+      const idx = Math.floor(x / width * n);
+      imgEl.src = images[idx];
+    });
+
+    wrapper.addEventListener('mouseleave', () => {
+      imgEl.src = images[0];
+    });
   });
 });
 </script>
-{% endblock %}
+{% endblock extra_scripts %}
