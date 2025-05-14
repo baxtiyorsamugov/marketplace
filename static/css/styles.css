@@ -1,0 +1,37 @@
+/* Немного «парящего» эффекта для карточек */
+.card:hover {
+  transform: translateY(-5px);
+  transition: transform 0.2s ease-out;
+}
+
+/* Заголовки товаров */
+.product-title {
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+/* Обрезаем длинные описания */
+.text-truncate {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Сброс отступов в списках навигации */
+.navbar-nav .nav-link {
+  margin-right: 0.5rem;
+}
+
+/* Немного отступа под футером */
+body {
+  padding-bottom: 60px;
+}
+
+/* Мобильная адаптация: уменьшить отступы в карточке */
+@media (max-width: 576px) {
+  .card-body {
+    padding: 0.75rem;
+  }
+}

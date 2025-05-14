@@ -1,0 +1,50 @@
+{# templates/sellers/product_form.html #}
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<form method="post" enctype="multipart/form-data">
+  {% csrf_token %}
+  {{ form|crispy }}
+
+  <hr>
+  <h3>Варианты товара</h3>
+  {{ variant_formset.management_form }}
+
+  <table class="table table-sm">
+  <thead>
+    <tr>
+      <th>Цвет</th><th>Размер</th><th>Цена</th><th>На складе</th><th>Изображение</th><th>Удалить</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for vf in variant_formset.forms %}
+      <tr>
+        {# вот они — скрытые поля id и DELETE #}
+        <td style="display:none;">
+          {{ vf.id }}      {# скрытое поле id для существующих объектов #}
+          {{ vf.DELETE }}  {# скрытое поле для удаления, можно вручную показать чекбокс #}
+        </td>
+
+        <td>{{ vf.color }}</td>
+        <td>{{ vf.size }}</td>
+        <td>{{ vf.price }}</td>
+        <td>{{ vf.stock }}</td>
+        <td>
+          {{ vf.image }}
+          {% if vf.instance.pk and vf.instance.image %}
+            <br><img src="{{ vf.instance.image.url }}" width="80">
+          {% endif %}
+        </td>
+        <td>
+          {# если вы хотите видимый чекбокс для удаления #}
+          {{ vf.DELETE }}
+        </td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+  <button type="submit" class="btn btn-success">Сохранить</button>
+</form>
+{% endblock %}

@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block title %}Отзывы покупателей{% endblock %}
+{% block content %}
+<h1>Отзывы</h1>
+<table class="table mt-3">
+  <thead><tr><th>Товар</th><th>Автор</th><th>Оценка</th><th>Текст</th><th>Ответ</th><th></th></tr></thead>
+  <tbody>
+    {% for r in reviews %}
+      <tr>
+        <td>{{ r.product.title }}</td>
+        <td>{{ r.author.username }}</td>
+        <td>{{ r.rating }}★</td>
+        <td>{{ r.text|truncatechars:50 }}</td>
+        <td>{{ r.seller_response|default:'—'|truncatechars:50 }}</td>
+        <td>
+          <a href="{% url 'seller:review_reply' r.pk %}" class="btn btn-sm btn-outline-secondary">
+            Ответить
+          </a>
+        </td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

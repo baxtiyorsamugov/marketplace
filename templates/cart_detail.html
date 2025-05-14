@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block title %}Ваша корзина{% endblock %}
+{% block content %}
+<h2>Корзина</h2>
+{% if items %}
+  <table class="table">
+    <thead>
+      <tr><th>Товар</th><th>Вариант</th><th>Цена</th><th>Кол-во</th><th>Сумма</th><th></th></tr>
+    </thead>
+    <tbody>
+      {% for it in items %}
+        <tr>
+          <td>{{ it.variant.product.title }}</td>
+          <td>{{ it.variant.color }}/{{ it.variant.size }}</td>
+          <td>{{ it.variant.price }}₽</td>
+          <td>{{ it.quantity }}</td>
+          <td>{{ it.subtotal }}₽</td>
+          <td>
+            <a href="{% url 'cart_remove' it.variant.id %}" class="btn btn-sm btn-danger">×</a>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <h4>Итого: {{ total }}₽</h4>
+  <a href="{% url 'order_create' %}" class="btn btn-primary">Оформить заказ</a>
+{% else %}
+  <p>Ваша корзина пуста.</p>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% block title %}Заказ №{{ object.pk }}{% endblock %}
+
+{% block content %}
+<h2>Заказ №{{ object.pk }}</h2>
+<p><strong>Дата создания:</strong> {{ object.created_at|date:"d.m.Y H:i" }}</p>
+<p><strong>Адрес доставки:</strong> {{ object.address }}</p>
+<p><strong>Статус:</strong>
+  <span class="badge {% if object.status == 'pending' %}bg-warning
+                      {% elif object.status == 'paid'    %}bg-primary
+                      {% elif object.status == 'shipped' %}bg-info
+                      {% elif object.status == 'delivered' %}bg-success
+                      {% else %}bg-danger{% endif %}">
+    {{ object.get_status_display }}
+  </span>
+</p>
+{% if object.delivery_date %}
+  <p><strong>Ориентировочная дата доставки:</strong> {{ object.delivery_date|date:"d.m.Y" }}</p>
+{% endif %}
+
+<hr>
+<h4>Состав заказа</h4>
+<table class="table">
+  <thead>
+    <tr><th>Товар</th><th>Вариант</th><th>Цена</th><th>Кол-во</th><th>Сумма</th></tr>
+  </thead>
+  <tbody>
+    {% for it in order_items %}
+      <tr>
+        <td>{{ it.product_title }}</td>
+        <td>{{ it.variant }}</td>
+        <td>{{ it.price }} ₽</td>
+        <td>{{ it.quantity }}</td>
+        <td>{{ it.subtotal }} ₽</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+  <tfoot>
+    <tr>
+      <th colspan="4" class="text-end">Итого:</th>
+      <th>{{ order_total }} ₽</th>
+    </tr>
+  </tfoot>
+</table>
+{% endblock %}

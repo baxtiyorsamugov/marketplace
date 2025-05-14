@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block title %}Кабинет продавца{% endblock %}
+{% block content %}
+<h1>Добро пожаловать, {{ request.user.username }}!</h1>
+<div class="row g-4 mt-3">
+  <div class="col-md-4">
+    <a href="{% url 'seller:product_list' %}" class="card text-center p-4 shadow-sm text-decoration-none">
+      <h2>Товары</h2>
+      <p>{{ products.count }} штук</p>
+    </a>
+  </div>
+  <div class="col-md-4">
+    <a href="{% url 'seller:stats' %}" class="card text-center p-4 shadow-sm text-decoration-none">
+      <h2>Продажи</h2>
+      <p>Всего продано: {{ sales_count }} шт.</p>
+      <p>Выручка: {{ revenue|floatformat:0 }} ₽</p>
+    </a>
+  </div>
+  <div class="col-md-4">
+    <a href="{% url 'seller:review_list' %}" class="card text-center p-4 shadow-sm text-decoration-none">
+      <h2>Отзывы</h2>
+      <p>{{ reviews.count }} всего</p>
+    </a>
+  </div>
+</div>
+{% endblock %}

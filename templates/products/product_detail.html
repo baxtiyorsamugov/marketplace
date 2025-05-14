@@ -1,0 +1,76 @@
+{# templates/products/product_detail.html #}
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}{{ object.title }}{% endblock %}
+
+{% block content %}
+<div class="row gy-4">
+  <div class="col-md-6 text-center">
+    {# Главное изображение #}
+    <img
+      id="main-image"
+      src="{% if variants.0.image %}{{ variants.0.image.url }}{% else %}{% static 'img/placeholder.png' %}{% endif %}"
+      alt="{{ object.title }}"
+      class="img-fluid rounded shadow-sm"
+    >
+  </div>
+
+  <div class="col-md-6">
+    <h2>{{ object.title }}</h2>
+    <p class="text-muted">{{ object.description }}</p>
+
+    <form method="post" action="{% url 'cart_add' %}">
+      {% csrf_token %}
+      <div class="mb-3">
+        <label for="variant-select" class="form-label">Вариант товара</label>
+        <select
+          name="variant"
+          id="variant-select"
+          class="form-select"
+          required
+        >
+          {% for v in variants %}
+            <option
+              value="{{ v.pk }}"
+              data-image-url="{% if v.image %}{{ v.image.url }}{% else %}{% static 'img/placeholder.png' %}{% endif %}"
+            >
+              {{ v.color }} / {{ v.size }} — {{ v.price }} сум (осталось {{ v.stock }})
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="mb-3">
+        <label for="qty-input" class="form-label">Количество</label>
+        <input
+          type="number"
+          id="qty-input"
+          name="quantity"
+          class="form-control"
+          value="1"
+          min="1"
+          max="{{ variants.0.stock }}"
+          required
+        >
+      </div>
+
+      <button type="submit" class="btn btn-success">Добавить в корзину</button>
+    </form>
+  </div>
+</div>
+
+{# JavaScript для переключения картинки #}
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+  const select = document.getElementById('variant-select');
+  const mainImg = document.getElementById('main-image');
+
+  select.addEventListener('change', function(){
+    const url = this.selectedOptions[0].dataset.imageUrl;
+    if (url) {
+      mainImg.src = url;
+    }
+  });
+});
+</script>
+{% endblock %}

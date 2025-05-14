@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block title %}Статистика продаж{% endblock %}
+{% block content %}
+<h1>Статистика</h1>
+<table class="table mt-3">
+  <thead><tr><th>Товар</th><th>Продано</th><th>Выручка</th></tr></thead>
+  <tbody>
+    {% for row in stats %}
+      <tr>
+        <td>{{ row.variant__product__title }}</td>
+        <td>{{ row.sold }}</td>
+        <td>{{ row.revenue|floatformat:0 }} ₽</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

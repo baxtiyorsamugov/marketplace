@@ -1,0 +1,28 @@
+{# templates/accounts/login.html #}
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Вход{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-12 col-md-5 col-lg-4">
+    <div class="card shadow-sm border-0">
+      <div class="card-header bg-white text-center">
+        <h4 class="mb-0">Войти</h4>
+      </div>
+      <div class="card-body">
+        <form method="post" novalidate>
+          {% csrf_token %}
+          {{ form.username|as_crispy_field }}
+          {{ form.password|as_crispy_field }}
+          <button type="submit" class="btn btn-success w-100 mt-3">Войти</button>
+        </form>
+      </div>
+      <div class="card-footer text-center">
+        <small>Нет аккаунта? <a href="{% url 'register' %}">Зарегистрироваться</a></small>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
