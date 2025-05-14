@@ -48,3 +48,14 @@ body {
   height: 100%;
   object-fit: cover;
 }
+
+.product-thumb-wrapper {
+  aspect-ratio: 1;    /* квадрат */
+  overflow: hidden;
+  position: relative;
+}
+.product-thumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}

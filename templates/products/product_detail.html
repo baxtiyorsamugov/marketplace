@@ -28,10 +28,48 @@
   </div>
 
   <div class="col-md-6">
-    <h1>{{ object.title }}</h1>
-    <p>{{ object.description }}</p>
-    {# … вариант выбрать, добавить в корзину и т.д. … #}
+    <h2>{{ object.title }}</h2>
+    <p class="text-muted">{{ object.description }}</p>
+
+    <form method="post" action="{% url 'cart_add' %}">
+      {% csrf_token %}
+      <div class="mb-3">
+        <label for="variant-select" class="form-label">Вариант товара</label>
+        <select
+          name="variant"
+          id="variant-select"
+          class="form-select"
+          required
+        >
+          {% for v in variants %}
+            <option
+              value="{{ v.pk }}"
+              data-image-url="{% if v.image %}{{ v.image.url }}{% else %}{% static 'img/placeholder.png' %}{% endif %}"
+            >
+              {{ v.color }} / {{ v.size }} — {{ v.price }} сум (осталось {{ v.stock }})
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="mb-3">
+        <label for="qty-input" class="form-label">Количество</label>
+        <input
+          type="number"
+          id="qty-input"
+          name="quantity"
+          class="form-control"
+          value="1"
+          min="1"
+          max="{{ variants.0.stock }}"
+          required
+        >
+      </div>
+
+      <button type="submit" class="btn btn-success">Добавить в корзину</button>
+    </form>
   </div>
+</div>
 </div>
 {% endblock content %}
 
