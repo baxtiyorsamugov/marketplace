@@ -26,7 +26,7 @@ admin.site.index_title = "Панель управления"
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('accounts/', include('accounts.urls')),
+    path('accounts/', include('accounts.urls', namespace='accounts')),
     path('sellers/', include('sellers.urls', namespace='seller')),
     # path('products/', include('products.urls')),
     path('orders/', include('orders.urls')),

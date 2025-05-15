@@ -144,3 +144,8 @@ CRISPY_TEMPLATE_PACK = 'bootstrap4'
 MEDIA_URL = '/media/'
 # Папка на диске, куда Django будет сохранять загруженные файлы
 MEDIA_ROOT = BASE_DIR / 'media'
+
+# после входа (и по умолчанию в LoginView)
+LOGIN_REDIRECT_URL  = '/'               # корень, или {% url 'product_list' %}
+# после выхода (и по умолчанию в LogoutView)
+LOGOUT_REDIRECT_URL = '/'               # или куда вам удобно

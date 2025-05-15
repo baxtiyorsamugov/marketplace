@@ -3,9 +3,17 @@ app_name = 'seller'
 from django.urls import path
 from .views import become_seller, seller_dashboard
 from . import views
+from django.contrib.auth import views as auth_views
 
 urlpatterns = [
     path('become/', become_seller, name='become_seller'),
+    path('login/', auth_views.LoginView.as_view(
+        template_name='sellers/login.html'
+    ), name='login'),
+    path('logout/', auth_views.LogoutView.as_view(
+        template_name='sellers/logged_out.html',
+        next_page='seller:login'  # после выхода перебросит на seller:login
+    ), name='logout'),
     path('dashboard/', views.SellerDashboard.as_view(), name='dashboard'),
     path('products/', views.SellerProductList.as_view(), name='product_list'),
     path('products/add/', views.SellerProductCreate.as_view(), name='product_add'),

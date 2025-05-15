@@ -41,13 +41,26 @@
       <ul class="navbar-nav">
         {% if user.is_authenticated %}
           {% if user.is_authenticated and user.sellerprofile.is_approved %}
-            <li class="nav-item"><a class="nav-link" href="{% url 'seller:dashboard' %}">Кабинет продавца</a></li>
+            {# продавец #}
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'seller:dashboard' %}">Кабинет продавца</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link text-danger" href="{% url 'seller:logout' %}">
+                Выйти из продавца
+              </a>
+            </li>
+          {% else %}
+            {# обычный пользователь #}
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'accounts:logout' %}">
+                Выйти
+              </a>
+            </li>
           {% endif %}
-          <li class="nav-item"><a class="nav-link" href="#">{{ user.username }}</a></li>
-          <li class="nav-item"><a class="nav-link text-danger" href="{% url 'logout' %}">Выйти</a></li>
         {% else %}
-          <li class="nav-item"><a class="nav-link" href="{% url 'login' %}">Войти</a></li>
-          <li class="nav-item"><a class="nav-link" href="{% url 'register' %}">Регистрация</a></li>
+          <li class="nav-item"><a class="nav-link" href="{% url 'accounts:login' %}">Войти</a></li>
+          <li class="nav-item"><a class="nav-link" href="{% url 'accounts:register' %}">Регистрация</a></li>
         {% endif %}
       </ul>
     </div>

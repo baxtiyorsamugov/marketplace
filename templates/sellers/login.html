@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}Вход для продавцов{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-12 col-md-6 col-lg-4">
+    <h2 class="mb-4 text-center">Вход в кабинет продавца</h2>
+    <form method="post">
+      {% csrf_token %}
+      {{ form|crispy }}
+      <button type="submit" class="btn btn-success w-100 mt-3">Войти как продавец</button>
+    </form>
+    <p class="mt-3 text-center">
+      Перейти в <a href="{% url 'accounts:login' %}">вход для покупателей</a>
+    </p>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block title %}Вы вышли{% endblock %}
+
+{% block content %}
+<div class="text-center py-5">
+  <h2>Вы вышли из учётной записи</h2>
+  <p>Спасибо за визит!<br>
+     Если хотите вернуться — <a href="{% url 'accounts:login' %}">войдите снова</a>.</p>
+</div>
+{% endblock %}
