@@ -1,6 +1,7 @@
 {# templates/products/product_detail.html #}
 {% extends 'base.html' %}
 {% load static %}
+{% load static humanize %}
 
 {% block content %}
 <div class="row">
@@ -32,43 +33,94 @@
     <p class="text-muted">{{ object.description }}</p>
 
     <form method="post" action="{% url 'cart_add' %}">
-      {% csrf_token %}
-      <div class="mb-3">
-        <label for="variant-select" class="form-label">Вариант товара</label>
-        <select
-          name="variant"
-          id="variant-select"
-          class="form-select"
-          required
-        >
-          {% for v in variants %}
-            <option
-              value="{{ v.pk }}"
-              data-image-url="{% if v.image %}{{ v.image.url }}{% else %}{% static 'img/placeholder.png' %}{% endif %}"
-            >
-              {{ v.color }} / {{ v.size }} — {% load l10n %}
-                  {% localize on %}{{ v.price|floatformat:"0" }}{% endlocalize %} сум (осталось {{ v.stock }})
-            </option>
-          {% endfor %}
-        </select>
-      </div>
+        {% csrf_token %}
 
-      <div class="mb-3">
-        <label for="qty-input" class="form-label">Количество</label>
-        <input
-          type="number"
-          id="qty-input"
-          name="quantity"
-          class="form-control"
-          value="1"
-          min="1"
-          max="{{ variants.0.stock }}"
-          required
-        >
-      </div>
+        {# === Выбор варианта === #}
+        <div class="mb-3">
+          <label for="variant-select" class="form-label">Вариант товара</label>
+          <select
+            name="variant"
+            id="variant-select"
+            class="form-select"
+            required
+          >
+            {% for v in variants %}
+              <option
+                value="{{ v.pk }}"
+                data-stock="{{ v.stock }}"
+                data-image-url="{% if v.image %}{{ v.image.url }}{% else %}{% static 'img/placeholder.png' %}{% endif %}"
+              >
+                {{ v.color }} / {{ v.size }} —
+                {{ v.price|floatformat:"0"|intcomma }} сум
+                (осталось {{ v.stock }})
+              </option>
+            {% endfor %}
+          </select>
+        </div>
 
-      <button type="submit" class="btn btn-success">Добавить в корзину</button>
-    </form>
+        {# === Превью картинки выбранного варианта === #}
+        <div class="mb-3 text-center">
+          <img
+            id="preview-img"
+            src="{% if variants.0.image %}{{ variants.0.image.url }}{% else %}{% static 'img/placeholder.png' %}{% endif %}"
+            class="img-fluid"
+            style="max-height:100px; object-fit:contain;"
+            alt="Картинка варианта"
+          >
+        </div>
+
+        {# === Поле количества + инфо об остатке === #}
+        <div class="mb-3">
+          <label for="qty-input" class="form-label">Количество</label>
+          <input
+            type="number"
+            id="qty-input"
+            name="quantity"
+            class="form-control"
+            value="1"
+            min="1"
+            max="{{ variants.0.stock }}"
+            required
+          >
+          <div id="stock-info" class="form-text">
+            Осталось {{ variants.0.stock }} шт.
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-success">Добавить в корзину</button>
+      </form>
+
+      {# === Сценарий для динамического апдейта === #}
+      <script>
+        document.addEventListener('DOMContentLoaded', () => {
+          const select   = document.getElementById('variant-select');
+          const qtyInput = document.getElementById('qty-input');
+          const stockTxt = document.getElementById('stock-info');
+          const preview  = document.getElementById('preview-img');
+
+          function updateVariant() {
+            const opt   = select.selectedOptions[0];
+            const stock = parseInt(opt.dataset.stock, 10) || 0;
+            const img   = opt.dataset.imageUrl;
+
+            // 1) Обновляем max и корректируем текущее значение
+            qtyInput.max = stock;
+            if (+qtyInput.value > stock) qtyInput.value = stock;
+
+            // 2) Обновляем текст остатка
+            stockTxt.textContent = 'Осталось ' + stock + ' шт.';
+
+            // 3) Обновляем превью картинки
+            if (img) preview.src = img;
+          }
+
+          // первый запуск при загрузке страницы
+          updateVariant();
+
+          // обновляем при смене варианта
+          select.addEventListener('change', updateVariant);
+        });
+      </script>
 
 
 
