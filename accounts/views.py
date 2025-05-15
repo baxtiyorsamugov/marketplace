@@ -11,7 +11,7 @@ def register(request):
         if form.is_valid():
             form.save()
             messages.success(request, 'Регистрация прошла успешно.')
-            return redirect('login')
+            return redirect('accounts:login')
     else:
         form = UserRegisterForm()
     return render(request, 'accounts/register.html', {'form': form})

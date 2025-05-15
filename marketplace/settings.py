@@ -146,6 +146,6 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 # после входа (и по умолчанию в LoginView)
-LOGIN_REDIRECT_URL  = '/'               # корень, или {% url 'product_list' %}
+LOGIN_REDIRECT_URL = '/'               # корень, или {% url 'product_list' %}
 # после выхода (и по умолчанию в LogoutView)
 LOGOUT_REDIRECT_URL = '/'               # или куда вам удобно
