@@ -82,16 +82,19 @@
               <tr>
                 <td>{{ it.product_title }}</td>
                 <td>{{ it.variant }}</td>
-                <td class="text-end">{{ it.price|floatformat:2 }} сум</td>
+                <td class="text-end">{% load l10n %}
+                  {% localize on %}{{ it.price|floatformat:"0" }}{% endlocalize %} сум</td>
                 <td class="text-center">{{ it.quantity }}</td>
-                <td class="text-end">{{ it.subtotal|floatformat:2 }} сум</td>
+                <td class="text-end">{% load l10n %}
+                  {% localize on %}{{ it.subtotal|floatformat:"0" }}{% endlocalize %} сум</td>
               </tr>
             {% endfor %}
           </tbody>
           <tfoot>
             <tr class="table-secondary">
               <th colspan="4" class="text-end">Итого:</th>
-              <th class="text-end">{{ order_total|floatformat:2 }} сум</th>
+              <th class="text-end">{% load l10n %}
+                  {% localize on %}{{ order_total|floatformat:"0" }}{% endlocalize %} сум</th>
             </tr>
           </tfoot>
         </table>

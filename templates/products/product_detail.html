@@ -46,7 +46,8 @@
               value="{{ v.pk }}"
               data-image-url="{% if v.image %}{{ v.image.url }}{% else %}{% static 'img/placeholder.png' %}{% endif %}"
             >
-              {{ v.color }} / {{ v.size }} — {{ v.price }} сум (осталось {{ v.stock }})
+              {{ v.color }} / {{ v.size }} — {% load l10n %}
+                  {% localize on %}{{ v.price|floatformat:"0" }}{% endlocalize %} сум (осталось {{ v.stock }})
             </option>
           {% endfor %}
         </select>

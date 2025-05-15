@@ -12,9 +12,11 @@
         <tr>
           <td>{{ it.variant.product.title }}</td>
           <td>{{ it.variant.color }}/{{ it.variant.size }}</td>
-          <td>{{ it.variant.price }}₽</td>
+          <td>{% load l10n %}
+                  {% localize on %}{{ it.variant.price|floatformat:"0" }}{% endlocalize %} сум</td>
           <td>{{ it.quantity }}</td>
-          <td>{{ it.subtotal }}₽</td>
+          <td>{% load l10n %}
+                  {% localize on %}{{ it.subtotal|floatformat:"0" }}{% endlocalize %} сум</td>
           <td>
             <a href="{% url 'cart_remove' it.variant.id %}" class="btn btn-sm btn-danger">×</a>
           </td>
@@ -22,7 +24,8 @@
       {% endfor %}
     </tbody>
   </table>
-  <h4>Итого: {{ total }}₽</h4>
+  <h4>Итого: {% load l10n %}
+                  {% localize on %}{{ total|floatformat:"0" }}{% endlocalize %} сум</h4>
   <a href="{% url 'order_create' %}" class="btn btn-primary">Оформить заказ</a>
 {% else %}
   <p>Ваша корзина пуста.</p>

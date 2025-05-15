@@ -76,7 +76,8 @@
                     <small class="text-muted">{{ item.variant.color }} / {{ item.variant.size }}</small>
                   </div>
                   <div>
-                    {{ item.quantity }} × {{ item.variant.price }} сум
+                    {{ item.quantity }} × {% load l10n %}
+                  {% localize on %}{{ item.variant.price|floatformat:"0" }}{% endlocalize %} сум
                   </div>
                 </li>
               {% endfor %}
