@@ -1,52 +1,119 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block title %}Мои заказы{% endblock %}
 
+{% block extra_head %}
+<style>
+  .order-card {
+    border: 1px solid #e1e1e1;
+    border-radius: .5rem;
+    margin-bottom: 1rem;
+    transition: box-shadow .2s;
+  }
+  .order-card:hover {
+    box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+  }
+  .order-header {
+    background: #f8f9fa;
+    padding: .75rem 1rem;
+    border-bottom: 1px solid #e1e1e1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .order-status {
+    font-size: .875rem;
+    padding: .25rem .6rem;
+    border-radius: .25rem;
+    color: #fff;
+  }
+  .status-unpaid    { background: #ffc107; } /* жёлтый */
+  .status-active    { background: #17a2b8; } /* голубой */
+  .status-delivered { background: #28a745; } /* зелёный */
+  .toggle-items {
+    cursor: pointer;
+    font-size: 1.1rem;
+    color: #6c757d;
+    transition: transform .2s;
+  }
+  .toggle-items.collapsed { transform: rotate(-90deg); }
+</style>
+{% endblock %}
+
 {% block content %}
-<h2>Мои заказы</h2>
+  <h1 class="mb-4">Мои заказы</h1>
 
-{% if orders %}
-  <div class="list-group">
+  {% if orders %}
     {% for order in orders %}
-      <a href="{% url 'order_detail' order.pk %}" class="list-group-item list-group-item-action mb-2">
-        <div class="d-flex w-100 justify-content-between">
-          <h5 class="mb-1">Заказ #{{ order.pk }}</h5>
-          <small>{{ order.created_at|date:"d.m.Y H:i" }}</small>
+      <div class="order-card">
+        <div class="order-header">
+           <a href="{% url 'order_detail' order.pk %}"class="list-group-item list-group-item-action mb-2">
+            <div>
+              <strong>Заказ #{{ order.pk }}</strong>
+              <small class="text-muted ms-2">{{ order.created_at|date:"d.m.Y H:i" }}</small>
+            </div>
+          </a>
+          <div class="d-flex align-items-center">
+            <span class="order-status">
+              {{ order.get_status_display }}
+            </span>
+            <span
+              class="toggle-items collapsed ms-3"
+              data-bs-toggle="collapse"
+              data-bs-target="#items-{{ order.pk }}"
+            >
+              <i class="fas fa-chevron-down"></i>
+            </span>
+          </div>
         </div>
-        <p class="mb-1">Статус: <strong>{{ order.get_status_display }}</strong></p>
-        {% if order.delivery_date %}
-          <small>Ориентировочная дата доставки: {{ order.delivery_date|date:"d.m.Y" }}</small>
-        {% endif %}
-      </a>
+        <div id="items-{{ order.pk }}" class="collapse">
+          <div class="p-3">
+            <ul class="list-unstyled mb-0">
+              {% for item in order.items.all %}
+                <li class="d-flex justify-content-between py-2 border-bottom">
+                  <div>
+                    <strong>{{ item.variant.product.title }}</strong><br>
+                    <small class="text-muted">{{ item.variant.color }} / {{ item.variant.size }}</small>
+                  </div>
+                  <div>
+                    {{ item.quantity }} × {{ item.variant.price }} сум
+                  </div>
+                </li>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+      </div>
     {% endfor %}
-  </div>
 
-  <!-- Пагинация -->
-  {% if is_paginated %}
-    <nav aria-label="Page navigation">
-      <ul class="pagination">
-        {% if page_obj.has_previous %}
-          <li class="page-item">
-            <a class="page-link" href="?page={{ page_obj.previous_page_number }}">«</a>
-          </li>
-        {% else %}
-          <li class="page-item disabled"><span class="page-link">«</span></li>
-        {% endif %}
-        {% for num in page_obj.paginator.page_range %}
-          <li class="page-item {% if page_obj.number == num %}active{% endif %}">
-            <a class="page-link" href="?page={{ num }}">{{ num }}</a>
-          </li>
-        {% endfor %}
-        {% if page_obj.has_next %}
-          <li class="page-item">
-            <a class="page-link" href="?page={{ page_obj.next_page_number }}">»</a>
-          </li>
-        {% else %}
-          <li class="page-item disabled"><span class="page-link">»</span></li>
-        {% endif %}
-      </ul>
-    </nav>
+    {# пагинация #}
+    {% if is_paginated %}
+      <nav aria-label="Навигация по страницам">
+        <ul class="pagination justify-content-center">
+          {% if page_obj.has_previous %}
+            <li class="page-item">
+              <a class="page-link" href="?page={{ page_obj.previous_page_number }}">«</a>
+            </li>
+          {% else %}
+            <li class="page-item disabled"><span class="page-link">«</span></li>
+          {% endif %}
+          {% for num in page_obj.paginator.page_range %}
+            <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+              <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+            </li>
+          {% endfor %}
+          {% if page_obj.has_next %}
+            <li class="page-item">
+              <a class="page-link" href="?page={{ page_obj.next_page_number }}">»</a>
+            </li>
+          {% else %}
+            <li class="page-item disabled"><span class="page-link">»</span></li>
+          {% endif %}
+        </ul>
+      </nav>
+    {% endif %}
+
+  {% else %}
+    <p>У вас пока нет заказов.</p>
   {% endif %}
-{% else %}
-  <p>Вы ещё не сделали ни одного заказа.</p>
-{% endif %}
 {% endblock %}

@@ -1,45 +1,105 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block title %}Заказ №{{ object.pk }}{% endblock %}
 
-{% block content %}
-<h2>Заказ №{{ object.pk }}</h2>
-<p><strong>Дата создания:</strong> {{ object.created_at|date:"d.m.Y H:i" }}</p>
-<p><strong>Адрес доставки:</strong> {{ object.address }}</p>
-<p><strong>Статус:</strong>
-  <span class="badge {% if object.status == 'pending' %}bg-warning
-                      {% elif object.status == 'paid'    %}bg-primary
-                      {% elif object.status == 'shipped' %}bg-info
-                      {% elif object.status == 'delivered' %}bg-success
-                      {% else %}bg-danger{% endif %}">
-    {{ object.get_status_display }}
-  </span>
-</p>
-{% if object.delivery_date %}
-  <p><strong>Ориентировочная дата доставки:</strong> {{ object.delivery_date|date:"d.m.Y" }}</p>
-{% endif %}
+{% block extra_head %}
+<style>
+  .order-detail-card {
+    border: 1px solid #e1e1e1;
+    border-radius: .5rem;
+    overflow: hidden;
+    margin-bottom: 2rem;
+  }
+  .order-detail-header {
+    background: #f8f9fa;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid #e1e1e1;
+  }
+  .order-detail-header h2 {
+    margin: 0;
+    font-size: 1.5rem;
+  }
+  .order-detail-body {
+    padding: 1.5rem;
+  }
+  .order-info p {
+    margin-bottom: .5rem;
+  }
+  .badge-status {
+    font-size: .875rem;
+    padding: .4rem .75rem;
+  }
+  .badge-pending   { background: #ffc107; } /* Ожидает оплаты */
+  .badge-paid      { background: #0d6efd; } /* Оплачен */
+  .badge-shipped   { background: #0dcaf0; } /* Отправлен */
+  .badge-delivered { background: #198754; } /* Доставлен */
+  .badge-cancelled { background: #dc3545; } /* Отменён */
+</style>
+{% endblock %}
 
-<hr>
-<h4>Состав заказа</h4>
-<table class="table">
-  <thead>
-    <tr><th>Товар</th><th>Вариант</th><th>Цена</th><th>Кол-во</th><th>Сумма</th></tr>
-  </thead>
-  <tbody>
-    {% for it in order_items %}
-      <tr>
-        <td>{{ it.product_title }}</td>
-        <td>{{ it.variant }}</td>
-        <td>{{ it.price }} ₽</td>
-        <td>{{ it.quantity }}</td>
-        <td>{{ it.subtotal }} ₽</td>
-      </tr>
-    {% endfor %}
-  </tbody>
-  <tfoot>
-    <tr>
-      <th colspan="4" class="text-end">Итого:</th>
-      <th>{{ order_total }} ₽</th>
-    </tr>
-  </tfoot>
-</table>
+{% block content %}
+  <div class="order-detail-card">
+    <!-- HEADER -->
+    <div class="order-detail-header d-flex justify-content-between align-items-center">
+      <h2>Заказ №{{ object.pk }}</h2>
+      <span class="badge badge-status
+        {% if object.status == 'pending'   %}badge-pending
+        {% elif object.status == 'paid'    %}badge-paid
+        {% elif object.status == 'shipped' %}badge-shipped
+        {% elif object.status == 'delivered'%}badge-delivered
+        {% else %}badge-cancelled{% endif %}
+      ">
+        {{ object.get_status_display }}
+      </span>
+    </div>
+
+    <!-- BODY -->
+    <div class="order-detail-body">
+      <div class="order-info mb-4">
+        <p><strong>Дата создания:</strong> {{ object.created_at|date:"d.m.Y H:i" }}</p>
+        {% if object.delivery_date %}
+          <p><strong>Дата доставки:</strong> {{ object.delivery_date|date:"d.m.Y" }}</p>
+        {% endif %}
+        <p><strong>Адрес доставки:</strong> {{ object.address }}</p>
+      </div>
+
+      <hr>
+
+      <h4 class="mb-3">Состав заказа</h4>
+      <div class="table-responsive">
+        <table class="table table-hover align-middle">
+          <thead class="table-light">
+            <tr>
+              <th>Товар</th>
+              <th>Вариант</th>
+              <th class="text-end">Цена</th>
+              <th class="text-center">Кол-во</th>
+              <th class="text-end">Сумма</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for it in order_items %}
+              <tr>
+                <td>{{ it.product_title }}</td>
+                <td>{{ it.variant }}</td>
+                <td class="text-end">{{ it.price|floatformat:2 }} сум</td>
+                <td class="text-center">{{ it.quantity }}</td>
+                <td class="text-end">{{ it.subtotal|floatformat:2 }} сум</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+          <tfoot>
+            <tr class="table-secondary">
+              <th colspan="4" class="text-end">Итого:</th>
+              <th class="text-end">{{ order_total|floatformat:2 }} сум</th>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <a href="{% url 'order_list' %}" class="btn btn-outline-secondary">
+    ← Вернуться к списку заказов
+  </a>
 {% endblock %}
