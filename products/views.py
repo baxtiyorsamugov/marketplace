@@ -61,6 +61,7 @@ class ProductListView(FilterView):
 class ProductDetailView(DetailView):
     model = Product
     template_name = 'products/product_detail.html'
+    context_object_name = 'object'
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
@@ -68,6 +69,8 @@ class ProductDetailView(DetailView):
         seller_profile = self.object.seller
         ctx['seller'] = seller_profile
         ctx['variants'] = self.object.variants.all()
+        ctx['approved_reviews'] = self.object.reviews.filter(approved=True)
+        ctx['star_range'] = range(1, 6)
         return ctx
 
 

@@ -59,3 +59,39 @@ body {
   height: 100%;
   object-fit: cover;
 }
+
+
+.star-rating {
+  direction: rtl;             /* чтобы при display:inline-браузер выстраивал inline-элементы справа-налево */
+  font-size: 2rem;            /* размер звезды */
+  user-select: none;
+}
+
+.star-rating input {
+  display: none;              /* скрываем настоящие radio-кнопки */
+}
+
+.star-rating label {
+  color: #ddd;                /* незаполненная звезда */
+  cursor: pointer;
+  padding: 0 0.1rem;
+  transition: color .2s;
+}
+
+/* при наведении подсвечиваем все «левее» текущей */
+.star-rating label:hover,
+.star-rating label:hover ~ label {
+  color: #ffc107;
+}
+
+/* при выборе (checked) подсвечиваем все «левее» */
+.star-rating input:checked ~ label {
+  color: #ffc107;
+}
+
+/* если навести на выбранную уже звезду, чуть более яркий оттенок */
+.star-rating input:checked + label:hover,
+.star-rating input:checked + label:hover ~ label {
+  color: #ffca28;
+}
+

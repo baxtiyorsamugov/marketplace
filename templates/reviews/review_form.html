@@ -1,13 +1,51 @@
+{# templates/reviews/review_form.html #}
 {% extends 'base.html' %}
 {% load crispy_forms_tags %}
 
-{% block title %}Оставить отзыв{% endblock %}
+{% block extra_head %}
+<style>
+  /* == Звёздный рейтинг == */
+  .star-rating {
+    direction: rtl;          /* чтобы «левые» label были последними в DOM */
+    display: inline-flex;
+    font-size: 2rem;
+    user-select: none;
+  }
+  .star-rating input {
+    display: none;           /* прячем настоящие радио */
+  }
+  .star-rating label {
+    cursor: pointer;
+    color: #ddd;             /* пустая звезда */
+    transition: color .2s;
+  }
+  /* при наведении и когда выбрано — подчёркиваем «левые» звёзды */
+  .star-rating label:hover,
+  .star-rating label:hover ~ label,
+  .star-rating input:checked ~ label {
+    color: #ffc107;
+  }
+  .star-rating input:checked + label:hover,
+  .star-rating input:checked + label:hover ~ label {
+    color: #ffb300;           /* чуть более ярко, когда «повторно» наведём */
+  }
+</style>
+{% endblock %}
 
 {% block content %}
-<h2>Оставить отзыв</h2>
-<form method="post">
-  {% csrf_token %}
-  {{ form|crispy }}
-  <button type="submit" class="btn btn-primary">Отправить</button>
-</form>
+  <h2>Оставить отзыв</h2>
+  <form method="post">
+    {% csrf_token %}
+
+    {# Django сам рендерит 5 радио под классом star-rating #}
+    <div class="mb-3">
+      {{ form.rating }}
+    </div>
+
+    <div class="mb-3">
+      {{ form.text|as_crispy_field }}
+    </div>
+
+    <button type="submit" class="btn btn-primary">Отправить</button>
+  </form>
 {% endblock %}

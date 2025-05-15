@@ -70,9 +70,7 @@
     </form>
 
 
-    {% if user.is_authenticated %}
-      <a href="{% url 'review_add' object.pk %}" class="btn btn-outline-primary">Оставить отзыв</a>
-    {% endif %}
+
     <hr>
     <h5>Продавец товара</h5>
     {% if seller.logo %}
@@ -93,18 +91,34 @@
   </div>
   <div class="col-md-4">
       <h4>Отзывы</h4>
-    {% for review in object.reviews.all %}
-      {% if review.approved %}
-        <div class="mb-2">
+    {% if approved_reviews %}
+    {% for review in approved_reviews %}
+        <div class="mb-3">
           <strong>{{ review.author.username }}</strong>
-          {% for i in "12345"|slice:":review.rating" %}★{% endfor %}
-          {% for i in "12345"|slice:"review.rating:" %}☆{% endfor %}
-          <p>{{ review.text }}</p>
+          {# новый единый цикл от 1 до 5 #}
+          {% for i in star_range %}
+            {% if review.rating >= i %}
+              <i class="fas fa-star text-warning"></i>
+            {% else %}
+              <i class="far fa-star text-warning"></i>
+            {% endif %}
+          {% endfor %}
+          <p class="mt-1">{{ review.text }}</p>
+
+          {% if review.seller_response %}
+            <div class="alert alert-secondary py-2">
+              <small><strong>Ответ продавца:</strong></small>
+              <div>{{ review.seller_response }}</div>
+            </div>
+          {% endif %}
         </div>
-      {% endif %}
-    {% empty %}
+      {% endfor %}
+    {% else %}
       <p>Пока нет отзывов.</p>
-    {% endfor %}
+    {% endif %}
+    {% if user.is_authenticated %}
+      <a href="{% url 'review_add' object.pk %}" class="btn btn-outline-primary">Оставить отзыв</a>
+    {% endif %}
   </div>
   <hr>
   <div class="d-flex align-items-center mb-4">
