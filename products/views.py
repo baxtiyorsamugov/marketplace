@@ -1,3 +1,4 @@
+from django.db.models import Q
 from django.views.generic import ListView, DetailView
 from .models import Product, ProductVariant, Category, Favorite
 from django.db.models import Prefetch
@@ -38,18 +39,40 @@ def toggle_favorite(request, pk):
 
 class ProductListView(FilterView):
     model = Product
-    paginate_by = 12
     template_name = 'products/product_list.html'
+    context_object_name = 'page_obj'
+    paginate_by = 12
     filterset_class = ProductFilter
 
     def get_context_data(self, **ctx):
         ctx = super().get_context_data(**ctx)
+
+        # текущий выбранный id (category OR subcategory)
+        try:
+            current = int(self.request.GET.get('category'))
+        except (TypeError, ValueError):
+            current = None
+        ctx['current_cat'] = current
+
+        # строим дерево категорий для бокового меню
+        roots = Category.objects.filter(parent__isnull=True).prefetch_related('children')
+        tree  = []
+        for cat in roots:
+            kids = list(cat.children.all())
+            tree.append({
+                'cat'       : cat,
+                'children'  : kids,
+                'is_active' : cat.id == current or any(ch.id == current for ch in kids)
+            })
+        ctx['category_tree'] = tree
+
+        # избранное
         if self.request.user.is_authenticated:
-            # забираем все PK товаров в избранном у текущего юзера
-            fav_ids = self.request.user.favorites.values_list('product_id', flat=True)
-            ctx['user_favorites'] = set(fav_ids)
+            fav = self.request.user.favorites.values_list('product_id', flat=True)
+            ctx['user_favorites'] = set(fav)
         else:
             ctx['user_favorites'] = set()
+
         return ctx
 
     # def get_context_data(self, **kwargs):

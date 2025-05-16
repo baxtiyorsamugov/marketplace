@@ -22,7 +22,13 @@ class Favorite(models.Model):
 
 class Category(models.Model):
     name = models.CharField(max_length=100)
-    parent = models.ForeignKey('self', null=True, blank=True, related_name='children', on_delete=models.CASCADE)
+    parent = models.ForeignKey('self', null=True, blank=True, related_name='children', verbose_name="Родитель", on_delete=models.CASCADE)
+
+    class Meta:
+        verbose_name        = "Категория"
+        verbose_name_plural = "Категории"
+        ordering            = ("parent__id", "name")
+
     def __str__(self):
         return self.name
 

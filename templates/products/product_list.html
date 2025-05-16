@@ -7,28 +7,36 @@
 {% block content %}
 <div class="row gy-4">
 
-  <!-- ФИЛЬТРЫ -->
+    <!-- ФИЛЬТРЫ -->
+    <!-- в product_list.html -->
   <aside class="col-12 col-md-3">
-    <div class="card shadow-sm">
-      <div class="card-header bg-white">
-        <h5 class="mb-0">Фильтры</h5>
-      </div>
-      <div class="card-body">
-        <form method="get">
-          <div class="mb-3">
-            {{ filter.form.category|as_crispy_field }}
-          </div>
-          <div class="mb-3">
-            {{ filter.form.price_min|as_crispy_field }}
-          </div>
-          <div class="mb-3">
-            {{ filter.form.price_max|as_crispy_field }}
-          </div>
-          <button type="submit" class="btn btn-primary w-100">Применить</button>
-        </form>
+    <div class="card shadow-sm mb-4">
+      <div class="card-header">Категории</div>
+      <div class="card-body p-2">
+        <ul class="list-unstyled mb-0">
+          <li class="{% if not current_cat %}active{% endif %}">
+            <a href="{% url 'product_list' %}">Все категории</a>
+          </li>
+          {% for node in category_tree %}
+            <li class="mt-2 {% if node.is_active %}active{% endif %}">
+              <a href="?category={{ node.cat.id }}">{{ node.cat.name }}</a>
+            </li>
+            {% if node.children %}
+              <ul class="list-unstyled ps-3 mb-0">
+                {% for sub in node.children %}
+                  <li class="mt-1 {% if sub.id == current_cat %}active{% endif %}">
+                    <a href="?category={{ sub.id }}">{{ sub.name }}</a>
+                  </li>
+                {% endfor %}
+              </ul>
+            {% endif %}
+          {% endfor %}
+        </ul>
       </div>
     </div>
   </aside>
+
+
 
   <!-- СПИСОК ТОВАРОВ -->
   <section class="col-12 col-md-9">
