@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'django_filters',
     'accounts',
     'sellers',
+    'smart_selects',
     'products',
     'orders',
     'reviews',
@@ -155,3 +156,6 @@ USE_L10N = True
 USE_THOUSAND_SEPARATOR = True
 THOUSAND_SEPARATOR = ' '
 DECIMAL_SEPARATOR = ','
+
+SMART_SELECTS_SSL = False       # если вы не используете HTTPS в админке
+SMART_SELECTS_JQUERY = True     # джиквери уже есть в админке

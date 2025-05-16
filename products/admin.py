@@ -1,7 +1,25 @@
 from django.contrib import admin
 from .models import Category, Product, ProductVariant, ProductImage
 
-admin.site.register(Category)
+from django.contrib import admin
+from .models import Category, Product, ProductVariant, ProductImage
+
+
+@admin.register(Category)
+class CategoryAdmin(admin.ModelAdmin):
+    list_display = ('indented_name', 'parent',)
+    list_filter = ('parent',)
+    search_fields = ('name',)
+
+    def indented_name(self, obj):
+        # если есть родитель — отступаем
+        level = 0
+        p = obj.parent
+        while p:
+            level += 1
+            p = p.parent
+        return '  ' * level + obj.name
+    indented_name.short_description = 'Название'
 
 
 class ProductImageInline(admin.TabularInline):
@@ -11,7 +29,19 @@ class ProductImageInline(admin.TabularInline):
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
+    list_display = ('title', 'category', 'subcategory', 'seller',)
+    list_filter = ('category', 'subcategory',)
+    search_fields = ('title',)
     inlines = [ProductImageInline]
+    fieldsets = (
+        (None, {
+            'fields': (
+                'seller',
+                ('category', 'subcategory'),
+                'title', 'description',
+            )
+        }),
+    )
 
 
 @admin.register(ProductVariant)

@@ -33,6 +33,7 @@ urlpatterns = [
     path('reviews/', include('reviews.urls')),
     path('', include('products.urls')),
     # path('', include(('products.urls', 'products'), namespace='products')),
+    path('chaining/', include('smart_selects.urls')),
 ]
 
 

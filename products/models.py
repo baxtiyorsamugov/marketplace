@@ -1,4 +1,5 @@
 from django.db import models
+from smart_selects.db_fields import ChainedForeignKey
 from sellers.models import SellerProfile
 from django.conf import settings
 
@@ -28,8 +29,19 @@ class Category(models.Model):
 
 class Product(models.Model):
     seller = models.ForeignKey(SellerProfile, on_delete=models.CASCADE)
-    category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True)
+    category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True, related_name='products_main')
     title = models.CharField(max_length=255)
+    subcategory = ChainedForeignKey(
+        Category,
+        chained_field="category",  # поле-родитель
+        chained_model_field="parent",  # в подкатегории ― должно быть parent=category
+        show_all=False,
+        auto_choose=True,  # если у категории только одна подкатегория
+        sort=True,
+        on_delete=models.SET_NULL,
+        null=True, blank=True,
+        related_name='products_sub'
+    )
     description = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
 
