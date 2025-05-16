@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 {% load crispy_forms_tags %}
-
+{% load humanize %}
 {% block title %}Каталог товаров{% endblock %}
 
 {% block content %}
@@ -86,14 +86,23 @@
             <div class="card-body d-flex flex-column">
               <h6 class="product-title mb-2">{{ product.title }}</h6>
               <p class="text-muted mb-3 text-truncate">{{ product.description }}</p>
+              <!-- Быстрое добавление в корзину, цена и “Подробнее” -->
               <div class="mt-auto d-flex justify-content-between align-items-center">
-                <a href="{% url 'product_detail' product.pk %}" class="btn btn-outline-primary btn-sm">Подробнее</a>
+              <button
+                  type="button"
+                  class="btn btn-outline-success btn-sm add-to-cart"
+                  data-variant="{{ product.variants.first.pk }}"
+                  title="Добавить в корзину"
+                >
+                  <i class="fas fa-cart-plus"></i>
+              </button>
                 <span class="fw-bold">
-                  {% load l10n %}
-                  {% localize on %}
-                    {{ product.variants.first.price|floatformat:"0" }}  сум
-                  {% endlocalize %}
+                  {{ product.variants.first.price|floatformat:"0"|intcomma }} сум
                 </span>
+                <a href="{% url 'product_detail' product.pk %}"
+                   class="btn btn-outline-primary btn-sm">
+                  Подробнее
+                </a>
               </div>
             </div>
           </div>
@@ -175,4 +184,58 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 </script>
+
+<script>
+// функция для CSRF из вашего шаблона
+function getCookie(name) {
+  let match = document.cookie.match('(^|;)\\s*'+name+'\\s*=\\s*([^;]+)');
+  return match ? match.pop() : '';
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.add-to-cart').forEach(btn => {
+    btn.addEventListener('click', async e => {
+      e.preventDefault();
+      const variantId = btn.dataset.variant;
+      const url = "{% url 'cart_add' %}";
+
+      // найдём <i> внутри кнопки и запомним текущий класс
+      const icon = btn.querySelector('i');
+      const origIconClass = icon.className;
+
+      try {
+        const resp = await fetch(url, {
+          method: 'POST',
+          headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-Requested-With': 'XMLHttpRequest'
+          },
+          body: new URLSearchParams({ variant: variantId, quantity: 1 })
+        });
+        const data = await resp.json();
+        if (data.status === 'added') {
+          // 1) Перекрасим кнопку
+          btn.classList.replace('btn-outline-success', 'btn-success');
+          // 2) Поменяем иконку
+          icon.className = 'fas fa-check';
+
+          // через секунду вернём всё обратно
+          setTimeout(() => {
+            icon.className = origIconClass;
+            btn.classList.replace('btn-success', 'btn-outline-success');
+          }, 1000);
+
+          // (опционально) обновим счётчик в шапке
+          const badge = document.querySelector('.navbar .badge');
+          if (badge) badge.textContent = +badge.textContent + 1;
+        }
+      } catch (err) {
+        console.error('Ошибка при добавлении в корзину:', err);
+      }
+    });
+  });
+});
+</script>
 {% endblock %}
+
