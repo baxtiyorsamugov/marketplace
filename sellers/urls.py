@@ -22,4 +22,9 @@ urlpatterns = [
     path('stats/', views.SellerStats.as_view(), name='stats'),
     path('reviews/', views.SellerReviews.as_view(), name='review_list'),
     path('reviews/<int:pk>/reply/', views.SellerReviewUpdate.as_view(), name='review_reply'),
+    path(
+        'ajax/subcategories/',
+        views.ajax_load_subcategories,
+        name='ajax_load_subcategories'
+    )
 ]

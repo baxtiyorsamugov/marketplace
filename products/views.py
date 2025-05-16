@@ -11,6 +11,14 @@ from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 
 
+def get_subcategories(request):
+    parent_id = request.GET.get('parent')
+    if not parent_id:
+        return JsonResponse({'subcats': []})
+    subs = Category.objects.filter(parent_id=parent_id).values('id', 'name')
+    return JsonResponse({'subcats': list(subs)})
+
+
 class WishlistView(LoginRequiredMixin, ListView):
     model = Favorite
     template_name = 'products/wishlist.html'

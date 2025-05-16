@@ -8,12 +8,23 @@ from django.views.generic import (
 )
 from django.urls import reverse_lazy
 from .mixins import SellerRequiredMixin
-from products.models import Product, ProductVariant
+from products.models import Product, ProductVariant, Category
 from products.forms import ProductForm, VariantForm, VariantFormSet
 from orders.models import OrderItem
 from reviews.models import Review
 from reviews.forms import SellerResponseForm
 from django.db.models import Sum, F
+from django.http import JsonResponse
+
+
+def ajax_load_subcategories(request):
+    parent_id = request.GET.get('category')
+    if not parent_id:
+        return JsonResponse({'error': 'no category'}, status=400)
+
+    subs = Category.objects.filter(parent_id=parent_id).order_by('name')
+    data = [{'id': c.pk, 'name': c.name} for c in subs]
+    return JsonResponse(data, safe=False)
 
 
 # — Кабинет
