@@ -13,7 +13,7 @@
     <a href="{% url 'seller:stats' %}" class="card text-center p-4 shadow-sm text-decoration-none">
       <h2>Продажи</h2>
       <p>Всего продано: {{ sales_count }} шт.</p>
-      <p>Выручка: {{ revenue|floatformat:0 }} ₽</p>
+      <p>Выручка: {{ revenue|floatformat:0 }} сум</p>
     </a>
   </div>
   <div class="col-md-4">
@@ -23,4 +23,105 @@
     </a>
   </div>
 </div>
+
+<div class="container py-4">
+  <h1 class="mb-4">Статистика — {{ request.user.username }}</h1>
+
+  <div class="row">
+    <!-- график продаж -->
+    <div class="col-md-6 mb-4">
+      <div class="card shadow-sm">
+        <div class="card-header">Продажи по месяцам (посл. 12 мес.)</div>
+        <div class="card-body">
+          <canvas id="salesChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- фильтр и график остатков -->
+    <div class="col-md-6 mb-4">
+      <div class="card shadow-sm">
+        <div class="card-header">Остатки товаров на складе</div>
+        <div class="card-body">
+          <form method="get" class="row g-2 align-items-end mb-3">
+            <div class="col-auto">
+              <label for="stock_below" class="form-label mb-0">≤ остаток</label>
+              <input
+                type="number"
+                class="form-control"
+                name="stock_below"
+                id="stock_below"
+                min="0"
+                value="{{ stock_below|default_if_none:'' }}"
+                placeholder="например, 10"
+              >
+            </div>
+            <div class="col-auto">
+              <button type="submit" class="btn btn-outline-primary">Применить</button>
+            </div>
+          </form>
+          <canvas id="stockChart" style="max-height:400px;"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- график рейтингов -->
+  <div class="row">
+    <div class="col-12 mb-4">
+      <div class="card shadow-sm">
+        <div class="card-header">Средний рейтинг товаров</div>
+        <div class="card-body">
+          <canvas id="ratingChart" height="100"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    (function(){
+      // продажи
+      new Chart(document.getElementById('salesChart'), {
+        type: 'line',
+        data: {
+          labels: {{ chart_months|safe }},
+          datasets: [{ label: 'Штуки', data: {{ chart_sales|safe }}, fill: false, tension: 0.3 }]
+        },
+        options: { responsive: true, scales:{ y:{ beginAtZero:true }}}
+      });
+
+      // остатки
+      new Chart(document.getElementById('stockChart'), {
+        type: 'bar',
+        data: {
+          labels: {{ chart_variants|safe }},
+          datasets: [{ label: 'Остаток', data: {{ chart_stock|safe }} }]
+        },
+        options: {
+          responsive: true,
+          indexAxis: 'y',
+          scales:{ x:{ beginAtZero:true }}
+        }
+      });
+
+      // рейтинги
+      new Chart(document.getElementById('ratingChart'), {
+        type: 'bar',
+        data: {
+          labels: {{ chart_products|safe }},
+          datasets: [{ label: 'Рейтинг', data: {{ chart_ratings|safe }} }]
+        },
+        options: {
+          responsive: true,
+          scales: { y:{ beginAtZero:true, max:5 }}
+        }
+      });
+    })();
+  </script>
 {% endblock %}

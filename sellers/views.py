@@ -13,7 +13,9 @@ from products.forms import ProductForm, VariantForm, VariantFormSet
 from orders.models import OrderItem
 from reviews.models import Review
 from reviews.forms import SellerResponseForm
-from django.db.models import Sum, F
+from django.db.models import Sum, F, Count, Avg
+from django.utils import timezone
+import calendar
 from django.http import JsonResponse
 
 
@@ -34,6 +36,58 @@ class SellerDashboard(SellerRequiredMixin, TemplateView):
     def get_context_data(self, **ctx):
         ctx = super().get_context_data(**ctx)
         profile = self.request.user.sellerprofile
+
+        # ----- 1) данные по продажам (как было) -----
+        now = timezone.now()
+        one_year_ago = now.replace(year=now.year - 1)
+        sales = (OrderItem.objects
+                 .filter(variant__product__seller=profile, order__created_at__gte=one_year_ago)
+                 .annotate(month=F('order__created_at__month'))
+                 .values('month')
+                 .annotate(total_qty=Sum('quantity'))
+                 )
+        months = [calendar.month_name[i] for i in range(1, 13)]
+        sales_data = [0] * 12
+        for s in sales:
+            sales_data[s['month'] - 1] = s['total_qty']
+
+        # ----- 2) stock-фильтр -----
+        # читаем GET-параметр ?stock_below=...
+        try:
+            stock_below = int(self.request.GET.get('stock_below', ''))
+        except ValueError:
+            stock_below = None
+
+        variants_qs = ProductVariant.objects.filter(product__seller=profile)
+        if stock_below is not None:
+            variants_qs = variants_qs.filter(stock__lte=stock_below)
+
+        variants = variants_qs.values('id', 'product__title', 'color', 'size', 'stock')
+        var_labels = [f"{v['product__title']} ({v['color']}/{v['size']})" for v in variants]
+        var_stock = [v['stock'] for v in variants]
+
+        # ----- 3) рейтинги (как было) -----
+        ratings = (Review.objects
+                   .filter(product__seller=profile, approved=True)
+                   .values('product__title')
+                   .annotate(avg_rating=Avg('rating'))
+                   )
+        prod_labels = [r['product__title'] for r in ratings]
+        prod_rating = [round(r['avg_rating'], 2) for r in ratings]
+
+        ctx.update({
+            # для графика продаж
+            'chart_months': months,
+            'chart_sales': sales_data,
+            # для графика остатков
+            'chart_variants': var_labels,
+            'chart_stock': var_stock,
+            'stock_below': stock_below,
+            # для графика рейтингов
+            'chart_products': prod_labels,
+            'chart_ratings': prod_rating,
+        })
+
         ctx['sales_count'] = OrderItem.objects.filter(
             variant__product__seller=profile
         ).aggregate(total=Sum('quantity'))['total'] or 0
